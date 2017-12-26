@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAEA,IAAI;EACA,MAAM,EAAE,CAAC;EACT,UAAU,ECFN,OAAO;EDGX,KAAK,ECLD,OAAO;EDMX,WAAW,EAAE,kCAAkC;EAE/C,MAAC;IACG,MAAM,EAAE,CAAC;IACT,OAAO,EAAE,CAAC",
+"sources": ["../../src/sass/common.sass","../../src/sass/colors.sass"],
+"names": [],
+"file": "common.css"
+}
