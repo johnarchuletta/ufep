@@ -12,10 +12,23 @@
         <div id="map"></div>
         <sidebar>
             <div id="hide-button-container">
+                <i class="fa fa-caret-up" aria-hidden="true"></i>
+                <i class="fa fa-caret-right" aria-hidden="true"></i>
                 <i class="fa fa-caret-down" aria-hidden="true"></i>
+                <i class="fa fa-caret-left" aria-hidden="true"></i>
             </div>
-            <div>
-
+            <div id="sidebar-body">
+                <form>
+                    <div class="form-group">
+                        <label for="filter">Filter Locations:</label>
+                        <select id="filter">
+                            <option value="biggest">Large</option>
+                            <option value="cheapest">Cheapest</option>
+                            <option value="best-rated">Best Rated</option>
+                            <option value="hours">Hours</option>
+                        </select>
+                    </div>
+                </form>
             </div>
         </sidebar>
         <header>
