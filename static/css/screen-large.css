@@ -1,4 +1,11 @@
 @media only screen and (min-width: 1441px) {
+  #map {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    bottom: 0;
+    left: 500px; }
+
   sidebar {
     top: 50px;
     bottom: 0;
@@ -6,14 +13,10 @@
     height: 100%;
     width: 500px;
     flex-wrap: nowrap; }
-    sidebar #hide-button-container {
+    sidebar #sidebar-edge {
       order: 2;
-      width: 40px;
+      width: 1px;
       height: 100%; }
-      sidebar #hide-button-container i.fa.fa-caret-left {
-        display: block; }
-      sidebar #hide-button-container i.fa.fa-caret-up, sidebar #hide-button-container i.fa.fa-caret-right, sidebar #hide-button-container i.fa.fa-caret-down {
-        display: none; }
     sidebar #sidebar-body {
       order: 1;
       flex-grow: 1; } }

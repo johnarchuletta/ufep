@@ -1,4 +1,11 @@
 @media only screen and (min-width: 1441px)
+    #map
+        position: absolute
+        top: 50px
+        right: 0
+        bottom: 0
+        left: 500px
+
     sidebar
         top: 50px
         bottom: 0
@@ -7,16 +14,10 @@
         width: 500px
         flex-wrap: nowrap
 
-        #hide-button-container
+        #sidebar-edge
             order: 2
-            width: 40px
+            width: 1px
             height: 100%
-
-            i.fa.fa-caret-left
-                display: block
-
-            i.fa.fa-caret-up, i.fa.fa-caret-right, i.fa.fa-caret-down
-                display: none
 
         #sidebar-body
             order: 1

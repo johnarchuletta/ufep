@@ -2,17 +2,21 @@ body {
   margin: 0;
   background: #1a1a1a;
   color: #f5f5f5;
-  font-family: Source Sans Pro, Arial, sans-serif; }
+  font-family: Source Sans Pro, Arial, sans-serif;
+  font-size: 18px; }
   body * {
     margin: 0;
     padding: 0;
     box-sizing: border-box; }
 
+.gm-style-iw {
+  color: #1a1a1a; }
+
 #map {
-  position: fixed;
+  position: absolute;
   top: 50px;
   right: 0;
-  bottom: 50px;
+  bottom: 33.3333vh;
   left: 0; }
 
 sidebar {
@@ -23,43 +27,64 @@ sidebar {
   right: 0;
   bottom: 0;
   left: 0;
-  height: 50vh;
-  background: #343434;
-  background-image: url("data:image/svg+xml,%3Csvg width='42' height='44' viewBox='0 0 42 44' xmlns='http://www.w3.org/2000/svg'%3E%3Cg id='Page-1' fill='none' fill-rule='evenodd'%3E%3Cg id='brick-wall' fill='%23515151' fill-opacity='0.4'%3E%3Cpath d='M0 0h42v44H0V0zm1 1h40v20H1V1zM0 23h20v20H0V23zm22 0h20v20H22V23z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
-  sidebar #hide-button-container {
+  height: 33.3333vh;
+  background: #1a1a1a; }
+  sidebar #sidebar-edge {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 40px;
+    height: 1px;
     background: #4d4d4d;
     cursor: pointer;
     box-shadow: 0 0 10px #000; }
-    sidebar #hide-button-container i.fa.fa-caret-up, sidebar #hide-button-container i.fa.fa-caret-right, sidebar #hide-button-container i.fa.fa-caret-left {
-      display: none; }
   sidebar #sidebar-body {
     padding: 50px;
     flex-grow: 1;
     height: 100%;
-    max-width: 500px; }
-    sidebar #sidebar-body form > div.form-group {
-      margin: 0 0 25px 0; }
-      sidebar #sidebar-body form > div.form-group label {
+    overflow-y: auto; }
+    sidebar #sidebar-body #filters {
+      display: flex;
+      margin: 0 0 25px 0;
+      background: #343434;
+      padding: 25px;
+      border-radius: 4px;
+      box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.25); }
+      sidebar #sidebar-body #filters div {
+        width: 100%; }
+    sidebar #sidebar-body form > div.form-group label {
+      display: block;
+      margin: 0 0 10px 0; }
+    sidebar #sidebar-body form > div.form-group select {
+      background: #343434;
+      border: none;
+      padding: 8px 10px;
+      color: #f5f5f5;
+      border-radius: 4px;
+      width: 100%;
+      font-size: 18px;
+      box-shadow: 1px 1px 5px #000;
+      appearance: none;
+      margin: 0 0 10px 0; }
+    sidebar #sidebar-body form > div.form-group select:focus, sidebar #sidebar-body form > div.form-group input:focus {
+      outline: none; }
+    sidebar #sidebar-body p {
+      margin: 0 0 10px 0; }
+    sidebar #sidebar-body ul {
+      list-style: none; }
+      sidebar #sidebar-body ul li {
         display: block;
-        margin: 0 0 10px 0;
-        font-size: 18px; }
-      sidebar #sidebar-body form > div.form-group select, sidebar #sidebar-body form > div.form-group input {
-        background: #1a1a1a;
-        border: 1px solid #404040;
-        padding: 8px 10px;
+        background: #343434;
+        padding: 25px;
         color: #f5f5f5;
         border-radius: 4px;
         width: 100%;
-        font-size: 18px;
-        box-shadow: 1px 1px 5px #000;
-        margin: 0 0 0 10px; }
-      sidebar #sidebar-body form > div.form-group select:focus, sidebar #sidebar-body form > div.form-group input:focus {
-        outline: none; }
+        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.25);
+        margin: 0 0 15px 0; }
+        sidebar #sidebar-body ul li p {
+          font-size: 18px;
+          margin: 0;
+          color: #c2c2c2; }
 
 header {
   background: #1a1a1a;
@@ -72,9 +97,17 @@ header {
   height: 50px;
   padding: 0 0 0 25px;
   border-bottom: 1px solid #343434;
-  box-shadow: 0 0 10px #000; }
+  box-shadow: 0 0 10px #000;
+  font-size: 18px; }
 
 @media only screen and (min-width: 1441px) {
+  #map {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    bottom: 0;
+    left: 500px; }
+
   sidebar {
     top: 50px;
     bottom: 0;
@@ -82,14 +115,10 @@ header {
     height: 100%;
     width: 500px;
     flex-wrap: nowrap; }
-    sidebar #hide-button-container {
+    sidebar #sidebar-edge {
       order: 2;
-      width: 40px;
+      width: 1px;
       height: 100%; }
-      sidebar #hide-button-container i.fa.fa-caret-left {
-        display: block; }
-      sidebar #hide-button-container i.fa.fa-caret-up, sidebar #hide-button-container i.fa.fa-caret-right, sidebar #hide-button-container i.fa.fa-caret-down {
-        display: none; }
     sidebar #sidebar-body {
       order: 1;
       flex-grow: 1; } }

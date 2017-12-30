@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <title>BerlinTechno</title>
+        <title>Berlin Techno Clubs</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700">
@@ -11,31 +11,74 @@
     <body>
         <div id="map"></div>
         <sidebar>
-            <div id="hide-button-container">
-                <i class="fa fa-caret-up" aria-hidden="true"></i>
-                <i class="fa fa-caret-right" aria-hidden="true"></i>
-                <i class="fa fa-caret-down" aria-hidden="true"></i>
-                <i class="fa fa-caret-left" aria-hidden="true"></i>
-            </div>
+            <div id="sidebar-edge"></div>
             <div id="sidebar-body">
-                <form>
-                    <div class="form-group">
-                        <label for="filter">Filter Locations:</label>
-                        <select id="filter">
-                            <option value="biggest">Large</option>
-                            <option value="cheapest">Cheapest</option>
-                            <option value="best-rated">Best Rated</option>
-                            <option value="hours">Hours</option>
-                        </select>
+                <p><strong>Filters:</strong></p>
+                <section id="filters">
+                    <div>
+                        <label for="size">
+                            <div>
+                                <span><strong>Size:</strong></span>
+                                <div>
+                                    <input type="radio" name="size" id="size-any" value="" data-bind="click: applyFilter" checked="checked">
+                                    <span>Any</span>
+                                    </div>
+                                <div>
+                                    <input type="radio" name="size" id="size-large" value="large" data-bind="click: applyFilter">
+                                    <span>Large</span>
+                                </div>
+                                <div>
+                                    <input type="radio" name="size" id="size-medium" value="medium" data-bind="click: applyFilter">
+                                    <span>Medium</span>
+                                </div>
+                                <div>
+                                    <input type="radio" name="size" id="size-small" value="small" data-bind="click: applyFilter">
+                                    <span>Small</span>
+                                </div>
+                            </div>
+                        </label>
                     </div>
-                </form>
+                    <div>
+                        <label for="price">
+                            <div>
+                                <span><strong>Price:</strong></span>
+                                <div>
+                                    <input type="radio" name="price" id="price-any" value="" data-bind="click: applyFilter" checked="checked">
+                                    <span>Any</span>
+                                    </div>
+                                <div>
+                                    <input type="radio" name="price" id="price-expensive" value="expensive" data-bind="click: applyFilter">
+                                    <span>Expensive</span>
+                                </div>
+                                <div>
+                                    <input type="radio" name="price" id="price-average" value="average" data-bind="click: applyFilter">
+                                    <span>Average</span>
+                                </div>
+                                <div>
+                                    <input type="radio" name="price" id="price-free" value="free" data-bind="click: applyFilter">
+                                    <span>Free</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </section>
+                <p><strong>Recommended:</strong></p>
+                <ul data-bind="foreach: filteredPositions()">
+                    <li>
+                        <a data-bind="text: title"></a>
+                        <p data-bind="text: address"></p>
+                    </li>
+                </ul>
+                <div data-bind="if: filteredPositions().length === 0">
+                    <p>No Results</p>
+                </div>
             </div>
         </sidebar>
         <header>
-            <i class="fa fa-map-marker" aria-hidden="true" style="color: #ff1744; font-size: 18px; margin: 0 5px 0 0;"></i><p><strong>BerlinTechno</strong>&nbsp;&nbsp;<span style="color: #a3a3a3;">|&nbsp;&nbsp;The Best Techno Clubs in Berlin.</span></p>
+            <i class="fa fa-map-marker" aria-hidden="true" style="color: #ff1744; font-size: 18px; margin: 0 10px 0 0;"></i><p><strong>Berlin Techno Clubs</strong></p>
         </header>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArr-7_ASvZE--MmpZ8T_F7CmzjyWOE270&v=3&callback=initMap"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
-        <script src="static/js/bundle.js"></script>
+        <script src="static/js/app.js"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArr-7_ASvZE--MmpZ8T_F7CmzjyWOE270&v=3&callback=startApp"></script>
     </body>
 </html>
