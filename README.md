@@ -23,4 +23,4 @@ Once the server is running, navigate to **http://localhost:8080**.
 ## Additional Notes
 
 
-The CSS for the app was written using SASS which can be found at `/src/sass/styles/sass`.
+The CSS for the app was written using SASS which can be found at `/src/sass/styles.sass`.
