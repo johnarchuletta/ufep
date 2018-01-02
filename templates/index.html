@@ -13,9 +13,12 @@
         <sidebar>
             <div id="sidebar-edge"></div>
             <div id="sidebar-body">
+                <div id="maps-error"></div>
                 <div>
-                    <span>Click map markers for MixCloud recordings.</span><br><br>
-                    <ul data-bind="foreach: filteredPositions()">
+                    <p>Click map markers for MixCloud recordings.</p>
+                    <p data-bind="text: asyncErrorMsg"></p>
+                    <br><br>
+                    <ul data-bind="foreach: filteredLocations()">
                         <li style="cursor: pointer;" data-bind="click: $parent.focusOnLocation">
                             <div class="result-number">
                                 <p data-bind="text: ($index() + 1)"></p>
@@ -26,8 +29,8 @@
                             </div>
                         </li>
                     </ul>
-                    <div data-bind="if: filteredPositions().length === 0">
-                        <p>No Results</p>
+                    <div data-bind="if: filteredLocations().length === 0">
+                        <h2 style="color: #ff1744;">No Results</h2>
                     </div>
                 </div>
                 <section id="show-all" data-bind="if: focusedOnLocation">
@@ -39,19 +42,19 @@
                             <div>
                                 <p class="filter-type"><strong>Size:</strong></p>
                                 <div>
-                                    <input type="radio" name="size" id="size-any" value="" data-bind="click: applyFilter" checked="checked">
+                                    <input type="radio" name="size" id="size-any" value="" data-bind="click: setFilter" checked="checked">
                                     <span>Any</span>
                                     </div>
                                 <div>
-                                    <input type="radio" name="size" id="size-large" value="large" data-bind="click: applyFilter">
+                                    <input type="radio" name="size" id="size-large" value="large" data-bind="click: setFilter">
                                     <span>Large</span>
                                 </div>
                                 <div>
-                                    <input type="radio" name="size" id="size-medium" value="medium" data-bind="click: applyFilter">
+                                    <input type="radio" name="size" id="size-medium" value="medium" data-bind="click: setFilter">
                                     <span>Medium</span>
                                 </div>
                                 <div>
-                                    <input type="radio" name="size" id="size-small" value="small" data-bind="click: applyFilter">
+                                    <input type="radio" name="size" id="size-small" value="small" data-bind="click: setFilter">
                                     <span>Small</span>
                                 </div>
                             </div>
@@ -62,19 +65,19 @@
                             <div>
                                 <p class="filter-type"><strong>Price:</strong></p>
                                 <div>
-                                    <input type="radio" name="price" id="price-any" value="" data-bind="click: applyFilter" checked="checked">
+                                    <input type="radio" name="price" id="price-any" value="" data-bind="click: setFilter" checked="checked">
                                     <span>Any</span>
                                     </div>
                                 <div>
-                                    <input type="radio" name="price" id="price-expensive" value="expensive" data-bind="click: applyFilter">
+                                    <input type="radio" name="price" id="price-expensive" value="expensive" data-bind="click: setFilter">
                                     <span>Expensive</span>
                                 </div>
                                 <div>
-                                    <input type="radio" name="price" id="price-average" value="average" data-bind="click: applyFilter">
+                                    <input type="radio" name="price" id="price-average" value="average" data-bind="click: setFilter">
                                     <span>Average</span>
                                 </div>
                                 <div>
-                                    <input type="radio" name="price" id="price-free" value="free" data-bind="click: applyFilter">
+                                    <input type="radio" name="price" id="price-free" value="free" data-bind="click: setFilter">
                                     <span>Free</span>
                                 </div>
                             </div>
@@ -88,6 +91,6 @@
         </header>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
         <script src="static/js/app.js"></script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArr-7_ASvZE--MmpZ8T_F7CmzjyWOE270&v=3&callback=startApp"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArr-7_ASvZE--MmpZ8T_F7CmzjyWOE270&v=3&callback=startApp" onerror="googleMapsError()"></script>
     </body>
 </html>

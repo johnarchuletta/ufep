@@ -1,5 +1,7 @@
 let ViewModel = function() {
     let self = this;
+    this.asyncError = ko.observable(false);
+    this.asyncErrorMsg = ko.observable('');
     this.focusedOnLocation = ko.observable(false);
     this.map;
     this.markers = [];
@@ -33,7 +35,7 @@ let ViewModel = function() {
             ]
         }
     ];
-    this.positions = [
+    this.locations = [
         {
             title: 'Tresor',
             position: {
@@ -97,7 +99,7 @@ let ViewModel = function() {
             },
             address: 'Wiesenweg 5, 10365',
             size: 'small',
-            price: 'free',
+            price: 'average',
             info: 'info about void club'
         }
     ];
@@ -112,56 +114,54 @@ let ViewModel = function() {
         size: '',
         price: ''
     });
-    this.filteredPositions = ko.observableArray([]);
+    this.filteredLocations = ko.observableArray([]);
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
     // Callback function for Google Maps API that initializes map to show default locations
     this.initMap = function() {
-        this.filteredPositions(this.positions);
 
         this.map = new google.maps.Map(document.getElementById('map'), this.mapInitData);
         this.infoWindow = new google.maps.InfoWindow();
 
-        this.showMarkers(this.filteredPositions());
+        google.maps.event.addDomListener(window, 'resize', function() {
+            self.zoomOnVisibleMarkers();
+          });
+
+        this.filteredLocations(this.locations);
+        this.createAllMarkers();
 
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
     // Adds all locations to map and zooms to bounds
-    this.showMarkers = function(positions) {
+    this.createAllMarkers = function() {
 
-        // If there are no matching locations, zoom map to show entire city, otherwise zoom to bounds
-        if(this.filteredPositions().length === 0) {
+        let self = this;
 
-            this.map.setCenter(this.mapInitData.center);
-            this.map.setZoom(12);
+        // Create markers, add them to markers array and add event handlers to each
+        this.locations.forEach(function(position, i) {
 
-        } else {
+            (function() {
+                fetch('https://api.mixcloud.com/search/?type=cloudcast&q=live+at+' + position.title)
+                .then(function(res) {
 
-            let self = this;
+                    if(res.status === 200) {
 
-            // Create markers, add them to markers array and add event handlers to each
-            this.filteredPositions().forEach(function(position, i) {
+                        return res.json();
 
-                (function() {
-                    fetch('https://api.mixcloud.com/search/?type=cloudcast&q=live+at+' + position.title)
-                    .then(function(res) {
+                    } else {
 
-                        if(res.status === 200) {
+                        return {data: []};
 
-                            return res.json();
+                    }
+                })
+                .then(function(json) {
 
-                        } else {
-
-                            return;
-
-                        }
-                    })
-                    .then(function(json) {
-
-                        let info = '';
+                    let info = '';
+                    
+                    if(json.data !== undefined) {
 
                         if(json.data.length > 0) {
 
@@ -169,13 +169,13 @@ let ViewModel = function() {
                             json.data.forEach(function(data) {
                                 info = info + '<a href="' + data.url + '" target="_blank"> ' + data.name + '</a><br>';
                             });
-
+    
                         } else {
-
+    
                             info = '<h2>' + position.title + '</h2><br><h3>No recordings found.</h3>';
-
+    
                         }
-
+    
                         let marker = self.createMarker(
                             position.position,
                             position.title,
@@ -185,35 +185,29 @@ let ViewModel = function() {
                         );
                         
                         self.markers.push(marker);
-
+    
                         marker.addListener('click', function() {
                             self.showInfoWindow(this);
                             self.animateMarker(this);
                         });
+    
+                        self.zoomOnVisibleMarkers();
+                        
+                    }
 
-                        // Zoom map out if only one matching location, otherwise zoom to bounds
-                        if(self.filteredPositions().length === 1) {
-
-                            self.map.setCenter(positions[0].position);
-                            self.map.setZoom(15);
-
-                        } else {
-
-                            self.zoomOnMarkers();
-
-                        }
-
-                    });
-                })()
-            });
-        }
+                })
+                .catch(function(error) {
+                    self.asyncErrorMsg('MixCloud API Error: ' + error);
+                })
+            })()
+        });
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
     this.animateMarker = function(marker) {
 
-        this.markers.forEach(function(marker) {
+        self.markers.forEach(function(marker) {
             marker.setAnimation(null);
         });
 
@@ -221,26 +215,61 @@ let ViewModel = function() {
 
     };
 
-    this.zoomOnMarkers = function() {
+    this.zoomOnVisibleMarkers = function() {
+        
         let bounds = new google.maps.LatLngBounds();
-        
-                this.markers.forEach(function(marker) {
-                    bounds.extend(marker.position)
-                });
-        
-                this.map.fitBounds(bounds);
+        let visibleCount = 0;
+
+        self.markers.forEach(function(marker, i) {
+
+            if(marker.visible === true) {
+
+                visibleCount += 1;
+                bounds.extend(marker.position);
+
+            }
+
+        });
+
+        self.map.fitBounds(bounds);
+
+        if(visibleCount === 0) {
+
+            self.map.setCenter(this.mapInitData.center);
+            self.map.setZoom(10);
+
+        } else if(visibleCount === 1) {
+
+            self.map.setZoom(15);
+
+        }
+
     }
 
-    this.showInfoWindow = function(marker, info) {
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    this.hideInfoWindow = function() {
+        console.log('hmm');
+        this.infoWindow.close();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    this.showInfoWindow = function(marker) {
         
         if(this.infoWindow.marker != marker) {
+
             this.infoWindow.marker = marker;
             this.infoWindow.setContent(marker.info.toString());
             this.infoWindow.open(this.map, marker);
+
             this.infoWindow.addListener(function() {
-                this.infoWindow.setMarker = null;
+
+                this.infoWindow.close();
+
             });
         }
+
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -261,45 +290,67 @@ let ViewModel = function() {
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    // Filters through positions array and creates new markers for matching locations
-    this.filterPositions = function() {
+    // Filters through locations array and creates new markers for matching locations
+    this.filterLocations = function() {
 
-        this.clearMarkers();
+        this.filteredLocations([]);
+        this.hideMarkers();
 
-        // Create new filtered positions array based on new filters
-        this.positions.forEach(function(obj, i) {
+        // Create new filtered locations array based on new filters
+        this.locations.forEach(function(obj, i) {
 
             if(this.filters().size === '' && this.filters().price === '') {
-                this.filteredPositions.push(this.positions[i]);
+                this.filteredLocations.push(this.locations[i]);
             } else if(this.filters().size === '' && this.filters().price != '') {
-                if(this.positions[i].price === this.filters().price) {
-                    this.filteredPositions.push(this.positions[i]);
+                if(this.locations[i].price === this.filters().price) {
+                    this.filteredLocations.push(this.locations[i]);
                 }
             } else if(this.filters().size != '' && this.filters().price === '') {
-                if(this.positions[i].size === this.filters().size) {
-                    this.filteredPositions.push(this.positions[i]);
+                if(this.locations[i].size === this.filters().size) {
+                    this.filteredLocations.push(this.locations[i]);
                 }
             } else {
-                if(this.positions[i].size === this.filters().size && this.positions[i].price === this.filters().price) {
-                    this.filteredPositions.push(this.positions[i]);
+                if(this.locations[i].size === this.filters().size && this.locations[i].price === this.filters().price) {
+                    this.filteredLocations.push(this.locations[i]);
                 }
             }
 
         }, this);
 
         // Show locations that match filter criteria
-        this.showMarkers(this.filteredPositions());
+        this.showMarkers();
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    this.showMarkers = function() {
+
+        self.markers.forEach(function(marker, i) {
+
+            self.filteredLocations().forEach(function(position) {
+
+                if(position.title === marker.title) {
+
+                    marker.setVisible(true);
+
+                }
+
+            })
+        });
+
+        self.zoomOnVisibleMarkers();
 
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
     // Click event handler that triggers location filtering
-    this.applyFilter = function(self, evt) {
+    this.setFilter = function(self, evt) {
 
         // Grab values from radio buttons and trigger filtering
         this.filters()[evt.srcElement.name] = evt.srcElement.value;
-        this.filterPositions();
+        this.filterLocations();
         return true;
 
     }
@@ -310,21 +361,34 @@ let ViewModel = function() {
 
         // Show "Show All Locations" button
         self.focusedOnLocation(true);
+        self.hideMarkers();
 
-        self.clearMarkers();
+        let selectedLocation = null;
 
-        // Create new filtered positions array based on new filters
-        for(let i = 0; i < self.positions.length; i++)  {
+        // Create new filtered locations array based on new filters
+        for(let i = 0; i < self.filteredLocations().length; i++)  {
 
-            if(self.positions[i].title === this.title) {
-                self.filteredPositions.push(self.positions[i]);
-                i = self.positions.length;
+            if(self.filteredLocations()[i].title === this.title) {
+
+                selectedLocation = self.filteredLocations()[i];
+                self.filteredLocations([]);
+                self.filteredLocations.push(selectedLocation);
+                i = self.locations.length;
+
             }
 
         };
 
+        // Find marker that matches selected location
+        self.markers.forEach(function(marker, i) {
+            if(marker.title === selectedLocation.title) {
+                self.showInfoWindow(self.markers[i]);
+                self.animateMarker(self.markers[i]);
+            }
+        });
+
         // Show locations that match filter criteria
-        self.showMarkers(self.filteredPositions());
+        self.showMarkers();
 
     }
 
@@ -334,20 +398,25 @@ let ViewModel = function() {
 
         this.focusedOnLocation(false);
 
-        this.clearMarkers();
+        this.hideMarkers();
 
-        this.filteredPositions(this.positions);
-        this.showMarkers(this.filteredPositions());
+        this.filteredLocations(this.locations);
+        this.stopAnimations();
+        this.hideInfoWindow();
+        this.showMarkers();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    this.clearMarkers = function() {
+    this.stopAnimations = function() {
+        this.markers.forEach(function(marker) {
+            marker.setAnimation(null);
+        })
+    }
 
-        self.markers.forEach(function(marker) { marker.setMap(null) });
+    this.hideMarkers = function() {
 
-        self.markers = [];
-        self.filteredPositions([]);
+        self.markers.forEach(function(marker) { marker.setVisible(false) });
 
     }
 
@@ -359,4 +428,22 @@ let ViewModel = function() {
 
 function startApp() {    
     ko.applyBindings(new ViewModel());
+}
+
+function googleMapsError() {
+    let sidebar = document.querySelector('body');
+    let errorMsg = document.createElement('div');
+    errorMsg.style.position = 'fixed';
+    errorMsg.style.top = '0';
+    errorMsg.style.right = '0';
+    errorMsg.style.bottom = '0';
+    errorMsg.style.left = '0';
+    errorMsg.style.zIndex = '99999';
+    errorMsg.style.color = '#ff1744';
+    errorMsg.style.background = '#1a1a1a';
+    errorMsg.style.display = 'flex';
+    errorMsg.style.justifyContent = 'center';
+    errorMsg.style.alignItems = 'center';
+    errorMsg.innerHTML = 'There was an error with Google Maps API.';
+    sidebar.appendChild(errorMsg);
 }
