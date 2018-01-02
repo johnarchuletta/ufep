@@ -1,4 +1,6 @@
-var ViewModel = function() {
+let ViewModel = function() {
+    let self = this;
+    this.focusedOnLocation = ko.observable(false);
     this.map;
     this.markers = [];
     this.styles = [
@@ -121,15 +123,6 @@ var ViewModel = function() {
         this.map = new google.maps.Map(document.getElementById('map'), this.mapInitData);
         this.infoWindow = new google.maps.InfoWindow();
 
-        // this.map.addListener('click', function() {
-        //     try {
-        //         this.infoWindow.setMarker = null;
-        //     } catch(e) {
-        //         console.log(e);
-        //     }
-        //     console.log('hmm');
-        // })
-
         this.showMarkers(this.filteredPositions());
 
     }
@@ -140,14 +133,14 @@ var ViewModel = function() {
     this.showMarkers = function(positions) {
 
         // If there are no matching locations, zoom map to show entire city, otherwise zoom to bounds
-        if(positions.length === 0) {
+        if(this.filteredPositions().length === 0) {
 
             this.map.setCenter(this.mapInitData.center);
             this.map.setZoom(12);
 
         } else {
 
-            var self = this;
+            let self = this;
 
             // Create markers, add them to markers array and add event handlers to each
             this.filteredPositions().forEach(function(position, i) {
@@ -155,14 +148,35 @@ var ViewModel = function() {
                 (function() {
                     fetch('https://api.mixcloud.com/search/?type=cloudcast&q=live+at+' + position.title)
                     .then(function(res) {
-                        return res.json();
+
+                        if(res.status === 200) {
+
+                            return res.json();
+
+                        } else {
+
+                            return;
+
+                        }
                     })
                     .then(function(json) {
-                        var info = '';
-                        json.data.forEach(function(data) {
-                            info = info + data.name + '<br>';
-                        });
-                        var marker = self.createMarker(
+
+                        let info = '';
+
+                        if(json.data.length > 0) {
+
+                            info = '<h2>' + position.title + '</h2><br><h3>MixCloud recordings from this venue: </h3>';
+                            json.data.forEach(function(data) {
+                                info = info + '<a href="' + data.url + '" target="_blank"> ' + data.name + '</a><br>';
+                            });
+
+                        } else {
+
+                            info = '<h2>' + position.title + '</h2><br><h3>No recordings found.</h3>';
+
+                        }
+
+                        let marker = self.createMarker(
                             position.position,
                             position.title,
                             i,
@@ -174,25 +188,41 @@ var ViewModel = function() {
 
                         marker.addListener('click', function() {
                             self.showInfoWindow(this);
+                            self.animateMarker(this);
                         });
 
-                        self.zoomOnMarkers();
+                        // Zoom map out if only one matching location, otherwise zoom to bounds
+                        if(self.filteredPositions().length === 1) {
+
+                            self.map.setCenter(positions[0].position);
+                            self.map.setZoom(15);
+
+                        } else {
+
+                            self.zoomOnMarkers();
+
+                        }
+
                     });
                 })()
             });
-                
-            // Zoom map out if only one matching location, otherwise zoom to bounds
-            if(positions.length === 1) {
-                this.map.setCenter(positions[0].position);
-                this.map.setZoom(15);
-            }
         }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
+    this.animateMarker = function(marker) {
+
+        this.markers.forEach(function(marker) {
+            marker.setAnimation(null);
+        });
+
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+
+    };
+
     this.zoomOnMarkers = function() {
-        var bounds = new google.maps.LatLngBounds();
+        let bounds = new google.maps.LatLngBounds();
         
                 this.markers.forEach(function(marker) {
                     bounds.extend(marker.position)
@@ -224,7 +254,8 @@ var ViewModel = function() {
             id: IDBCursor,
             map: this.map,
             label: label || '',
-            info: info
+            info: info,
+            icon: 'static/img/marker.png'
         });
     }
 
@@ -233,11 +264,7 @@ var ViewModel = function() {
     // Filters through positions array and creates new markers for matching locations
     this.filterPositions = function() {
 
-        // Clear all markers
-        this.markers.forEach(function(marker) { marker.setMap(null) });
-
-        this.markers = [];
-        this.filteredPositions([]);
+        this.clearMarkers();
 
         // Create new filtered positions array based on new filters
         this.positions.forEach(function(obj, i) {
@@ -278,6 +305,51 @@ var ViewModel = function() {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
+
+    this.focusOnLocation = function() {
+
+        // Show "Show All Locations" button
+        self.focusedOnLocation(true);
+
+        self.clearMarkers();
+
+        // Create new filtered positions array based on new filters
+        for(let i = 0; i < self.positions.length; i++)  {
+
+            if(self.positions[i].title === this.title) {
+                self.filteredPositions.push(self.positions[i]);
+                i = self.positions.length;
+            }
+
+        };
+
+        // Show locations that match filter criteria
+        self.showMarkers(self.filteredPositions());
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    this.showAllLocations = function() {
+
+        this.focusedOnLocation(false);
+
+        this.clearMarkers();
+
+        this.filteredPositions(this.positions);
+        this.showMarkers(this.filteredPositions());
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    this.clearMarkers = function() {
+
+        self.markers.forEach(function(marker) { marker.setMap(null) });
+
+        self.markers = [];
+        self.filteredPositions([]);
+
+    }
 
     // Initialize Google Maps API
     this.initMap();

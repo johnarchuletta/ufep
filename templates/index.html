@@ -13,12 +13,31 @@
         <sidebar>
             <div id="sidebar-edge"></div>
             <div id="sidebar-body">
-                <p><strong>Filters:</strong></p>
-                <section id="filters">
+                <div>
+                    <span>Click map markers for MixCloud recordings.</span><br><br>
+                    <ul data-bind="foreach: filteredPositions()">
+                        <li style="cursor: pointer;" data-bind="click: $parent.focusOnLocation">
+                            <div class="result-number">
+                                <p data-bind="text: ($index() + 1)"></p>
+                            </div>
+                            <div>
+                                <a data-bind="text: title"></a>
+                                <p data-bind="text: address"></p>
+                            </div>
+                        </li>
+                    </ul>
+                    <div data-bind="if: filteredPositions().length === 0">
+                        <p>No Results</p>
+                    </div>
+                </div>
+                <section id="show-all" data-bind="if: focusedOnLocation">
+                    <a data-bind="click: showAllLocations" style="padding: 8px 12px; border: 1px solid #707070; border-radius: 4px; margin: 35px 0 0 0; cursor: pointer;">Show All Locations</a>
+                </section>
+                <section id="filters" data-bind="ifnot: focusedOnLocation">
                     <div>
                         <label for="size">
                             <div>
-                                <span><strong>Size:</strong></span>
+                                <p class="filter-type"><strong>Size:</strong></p>
                                 <div>
                                     <input type="radio" name="size" id="size-any" value="" data-bind="click: applyFilter" checked="checked">
                                     <span>Any</span>
@@ -41,7 +60,7 @@
                     <div>
                         <label for="price">
                             <div>
-                                <span><strong>Price:</strong></span>
+                                <p class="filter-type"><strong>Price:</strong></p>
                                 <div>
                                     <input type="radio" name="price" id="price-any" value="" data-bind="click: applyFilter" checked="checked">
                                     <span>Any</span>
@@ -62,20 +81,10 @@
                         </label>
                     </div>
                 </section>
-                <p><strong>Recommended:</strong></p>
-                <ul data-bind="foreach: filteredPositions()">
-                    <li>
-                        <a data-bind="text: title"></a>
-                        <p data-bind="text: address"></p>
-                    </li>
-                </ul>
-                <div data-bind="if: filteredPositions().length === 0">
-                    <p>No Results</p>
-                </div>
             </div>
         </sidebar>
         <header>
-            <i class="fa fa-map-marker" aria-hidden="true" style="color: #ff1744; font-size: 18px; margin: 0 10px 0 0;"></i><p><strong>Berlin Techno Clubs</strong></p>
+            <p style="height: 15px; width: 15px; border-radius: 100%; background: #ff1744; margin: 0 15px 0 0;"></p><p><strong>Berlin Techno Clubs</strong></p>
         </header>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
         <script src="static/js/app.js"></script>
